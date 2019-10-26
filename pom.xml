@@ -39,6 +39,26 @@
                 </exclusion>
             </exclusions>
         </dependency>
+
+        <!--pdf generator-->
+        <dependency>
+            <groupId>com.itextpdf</groupId>
+            <artifactId>itextpdf</artifactId>
+            <version>5.5.10</version>
+        </dependency>
+
+        <!--qr code generator-->
+        <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>core</artifactId>
+        <version>3.3.0</version>
+        </dependency>
+
+        <dependency>
+        <groupId>com.google.zxing</groupId>
+        <artifactId>javase</artifactId>
+        <version>3.3.0</version>
+        </dependency>
     </dependencies>
 
     <build>

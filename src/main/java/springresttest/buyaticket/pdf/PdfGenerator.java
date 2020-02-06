@@ -1,7 +1,8 @@
-package springresttest.buyaticket.ticket.pdf;
+package springresttest.buyaticket.pdf;
 
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.PdfWriter;
+import org.springframework.stereotype.Component;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -9,6 +10,7 @@ import java.net.URISyntaxException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+@Component
 public class PdfGenerator {
     public void generatePfd() throws IOException, DocumentException, URISyntaxException {
         Path qrImagePath = Paths.get(ClassLoader.getSystemResource("qrCode.png").toURI());

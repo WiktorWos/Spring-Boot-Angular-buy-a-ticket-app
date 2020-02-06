@@ -1,13 +1,10 @@
-package springresttest.buyaticket.ticket.model;
+package springresttest.buyaticket.model;
 
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
 
-@Document
+
 public class Ticket {
-    @Id
     private String ticketId;
     private String type;
     private LocalDateTime ticketValidity;

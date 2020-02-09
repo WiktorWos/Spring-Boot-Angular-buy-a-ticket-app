@@ -5,8 +5,6 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import org.springframework.stereotype.Component;
 import springresttest.buyaticket.model.User;
 
-import java.util.Optional;
-
 @Component
 public class UserToJson {
     public String convertToJson(User user) {

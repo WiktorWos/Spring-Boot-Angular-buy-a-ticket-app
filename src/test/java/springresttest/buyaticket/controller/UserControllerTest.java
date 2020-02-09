@@ -1,7 +1,6 @@
 package springresttest.buyaticket.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -19,10 +18,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 @WebMvcTest(UserController.class)
@@ -34,17 +35,13 @@ class UserControllerTest {
     @MockBean
     UserRepository userRepository;
 
-    @MockBean
-    UserToJson userToJson;
+    private UserToJson userToJson;
 
-    private List<User> generateUserList() {
-        Ticket ticket = new Ticket("Normal", LocalDateTime.now());
-        List<Ticket> tickets = Arrays.asList(ticket);
-        User user1 = new User("firstname1","lastName1","email1",tickets);
-        User user2 = new User("firstname2","lastName2","email2",tickets);
-        List<User> users = Arrays.asList(user1, user2);
-        return users;
+    @BeforeEach
+    void setUp() {
+        userToJson = new UserToJson();
     }
+
     @Test
     void getAllUsers() throws Exception {
         List<User> users = generateUserList();
@@ -64,11 +61,15 @@ class UserControllerTest {
 
     }
 
-    private User generateUser() {
-        List<Ticket> tickets = new ArrayList<>();
-        User user = new User("firstName1","lastName1","email1",tickets);
-        return user;
+    private List<User> generateUserList() {
+        Ticket ticket = new Ticket("Normal", LocalDateTime.now());
+        List<Ticket> tickets = Arrays.asList(ticket);
+        User user1 = new User("firstname1","lastName1","email1@gmail.com",tickets);
+        User user2 = new User("firstname2","lastName2","email2@gmail.com",tickets);
+        List<User> users = Arrays.asList(user1, user2);
+        return users;
     }
+
     @Test
     void getOneUser() throws Exception {
         User user = generateUser();
@@ -82,9 +83,25 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.userId",is(user.getUserId())));
     }
 
+    private User generateUser() {
+        List<Ticket> tickets = new ArrayList<>();
+        User user = new User("firstName1","lastName1","email1@gmail.com",tickets);
+        return user;
+    }
+
+    @Test
+    void getOneUser_EntityNotFound() throws Exception {
+        given(userRepository.findById("1")).willReturn(Optional.empty());
+
+        mockMvc.perform(get("/api/users/{id}",1)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status", is(404)))
+                .andExpect(jsonPath("$.message[0]", is("Entity not found")));
+    }
+
     @Test
     void addUser() throws Exception {
-        UserToJson userToJson = new UserToJson();
         String jsonUserString;
 
         User user = generateUser();
@@ -101,21 +118,72 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.email",is(user.getEmail())));
     }
 
-    private User generateUpdatedUser() {
+    @Test
+    void addUser_UserWithoutLastName() throws Exception{
+        User userWithoutLastName = generateUserWithoutLastName();
+        String jsonUserString = userToJson.convertToJson(userWithoutLastName);
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUserString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message[0]", is("Please provide a last name")));
+    }
+
+    private User generateUserWithoutLastName() {
         List<Ticket> tickets = new ArrayList<>();
-        User user = new User("updatedName","updatedLastName","updatedEmail",tickets);
+        User user = new User("firstName","","email@gmail.com",tickets);
         return user;
     }
+
+    @Test
+    void addUser_UserWithInvalidEmail() throws Exception{
+        User userWithoutLastName = generateUserWithInvalidEmail();
+        String jsonUserString = userToJson.convertToJson(userWithoutLastName);
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUserString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message[0]", is("Please provide a valid email address")));
+    }
+
+    private User generateUserWithInvalidEmail() {
+        List<Ticket> tickets = new ArrayList<>();
+        User user = new User("firstName","lastName","invalid",tickets);
+        return user;
+    }
+
+    @Test
+    void addUser_UserWithExistingEmail() throws Exception{
+        User user = generateUser();
+        List<User> users = new ArrayList<>();
+        users.add(user);
+        String jsonUserString = userToJson.convertToJson(user);
+
+        given(userRepository.findByEmail(user.getEmail())).willReturn(users);
+
+        mockMvc.perform(post("/api/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUserString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message[0]", is("There is already user with this email!")));
+    }
+
     @Test
     void updateUser() throws Exception {
-        UserToJson userToJson = new UserToJson();
         String jsonUpdatedUserString;
-
         User user = generateUser();
-        user.setUserId("1");
         User updatedUser = generateUpdatedUser();
-        updatedUser.setUserId("1");
+        List<User> usersFoundByUpdatedEmail = generateFoundByEmailUsers(1);
 
+        given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
         given(userRepository.findById("1")).willReturn(Optional.of(user));
 
         jsonUpdatedUserString = userToJson.convertToJson(updatedUser);
@@ -129,6 +197,43 @@ class UserControllerTest {
                 .andExpect(jsonPath("$.lastName",is(updatedUser.getLastName())))
                 .andExpect(jsonPath("$.email",is(updatedUser.getEmail())));
 
+    }
+
+    @Test
+    void updateUser_UserWithExistingEmail() throws Exception {
+        String jsonUpdatedUserString;
+        User user = generateUser();
+        User updatedUser = generateUpdatedUser();
+        List<User> usersFoundByUpdatedEmail = generateFoundByEmailUsers(2);
+
+        given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
+        given(userRepository.findById("1")).willReturn(Optional.of(user));
+
+        jsonUpdatedUserString = userToJson.convertToJson(updatedUser);
+
+        mockMvc.perform(put("/api/users/{id}",1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonUpdatedUserString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(jsonPath("$.message[0]", is("There is already user with this email!")));
+
+    }
+
+    private User generateUpdatedUser() {
+        List<Ticket> tickets = new ArrayList<>();
+        User user = new User("updatedName","updatedLastName","email1@gmail.com",tickets);
+        return user;
+    }
+
+    private List<User> generateFoundByEmailUsers(int howManyUsers) {
+        List<User> usersFoundByUpdatedEmail = new ArrayList<>();
+        User user = generateUser();
+        for(int i=0; i<howManyUsers; i++) {
+            usersFoundByUpdatedEmail.add(user);
+        }
+        return usersFoundByUpdatedEmail;
     }
 
     @Test

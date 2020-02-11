@@ -7,7 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import springresttest.buyaticket.jackson.UserToJson;
+import springresttest.buyaticket.jackson.EntityToJson;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
@@ -35,11 +35,11 @@ class UserControllerTest {
     @MockBean
     UserRepository userRepository;
 
-    private UserToJson userToJson;
+    private EntityToJson entityToJson;
 
     @BeforeEach
     void setUp() {
-        userToJson = new UserToJson();
+        entityToJson = new EntityToJson();
     }
 
     @Test
@@ -47,6 +47,7 @@ class UserControllerTest {
         List<User> users = generateUserList();
 
         given(userRepository.findAll()).willReturn(users);
+
 
         mockMvc.perform(get("/api/users")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -105,7 +106,7 @@ class UserControllerTest {
         String jsonUserString;
 
         User user = generateUser();
-        jsonUserString = userToJson.convertToJson(user);
+        jsonUserString = entityToJson.convertToJson(user);
 
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -121,7 +122,7 @@ class UserControllerTest {
     @Test
     void addUser_UserWithoutLastName() throws Exception{
         User userWithoutLastName = generateUserWithoutLastName();
-        String jsonUserString = userToJson.convertToJson(userWithoutLastName);
+        String jsonUserString = entityToJson.convertToJson(userWithoutLastName);
 
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -141,7 +142,7 @@ class UserControllerTest {
     @Test
     void addUser_UserWithInvalidEmail() throws Exception{
         User userWithoutLastName = generateUserWithInvalidEmail();
-        String jsonUserString = userToJson.convertToJson(userWithoutLastName);
+        String jsonUserString = entityToJson.convertToJson(userWithoutLastName);
 
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -163,7 +164,7 @@ class UserControllerTest {
         User user = generateUser();
         List<User> users = new ArrayList<>();
         users.add(user);
-        String jsonUserString = userToJson.convertToJson(user);
+        String jsonUserString = entityToJson.convertToJson(user);
 
         given(userRepository.findByEmail(user.getEmail())).willReturn(users);
 
@@ -186,7 +187,7 @@ class UserControllerTest {
         given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
         given(userRepository.findById("1")).willReturn(Optional.of(user));
 
-        jsonUpdatedUserString = userToJson.convertToJson(updatedUser);
+        jsonUpdatedUserString = entityToJson.convertToJson(updatedUser);
 
         mockMvc.perform(put("/api/users/{id}",1)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -209,7 +210,7 @@ class UserControllerTest {
         given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
         given(userRepository.findById("1")).willReturn(Optional.of(user));
 
-        jsonUpdatedUserString = userToJson.convertToJson(updatedUser);
+        jsonUpdatedUserString = entityToJson.convertToJson(updatedUser);
 
         mockMvc.perform(put("/api/users/{id}",1)
                 .contentType(MediaType.APPLICATION_JSON)

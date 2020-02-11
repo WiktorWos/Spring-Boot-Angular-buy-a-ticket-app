@@ -2,6 +2,7 @@ package springresttest.buyaticket.exceptions;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -27,7 +28,7 @@ public class UserExceptionHandler {
         List<String> messages = e.getBindingResult()
                 .getFieldErrors()
                 .stream()
-                .map(x -> x.getDefaultMessage())
+                .map(FieldError::getDefaultMessage)
                 .collect(Collectors.toList());
         UserErrorResponse error =
                 new UserErrorResponse(HttpStatus.BAD_REQUEST.value(), messages, System.currentTimeMillis());

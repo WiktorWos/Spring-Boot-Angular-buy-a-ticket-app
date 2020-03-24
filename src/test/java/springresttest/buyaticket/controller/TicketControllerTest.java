@@ -7,9 +7,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import springresttest.buyaticket.jackson.EntityToJson;
 import springresttest.buyaticket.model.Ticket;
+import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
+import springresttest.buyaticket.pdf.PdfGenerator;
 import springresttest.buyaticket.repository.UserRepository;
 
 import java.time.LocalDateTime;
@@ -33,12 +34,13 @@ class TicketControllerTest {
     @MockBean
     UserRepository userRepository;
 
-    private EntityToJson entityToJson;
+    @MockBean
+    PdfGenerator pdfGenerator;
+
     private DateTimeFormatter dateTimeFormatter;
 
     @BeforeEach
     void setUp() {
-        entityToJson = new EntityToJson();
         dateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
     }
 
@@ -55,13 +57,14 @@ class TicketControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].type", is("Normal")))
+                .andExpect(jsonPath("$[0].type.price", is(1.50)))
+                .andExpect(jsonPath("$[0].type.duration", is(20)))
                 .andExpect(jsonPath("$[0].ticketValidity", is(ticketValidity)));
 
     }
 
     private List<User> generateUserList() {
-        Ticket ticket = new Ticket("Normal", LocalDateTime.now().plusMinutes(50));
+        Ticket ticket = new Ticket(TicketType.REDUCED_20, LocalDateTime.now().plusMinutes(50));
         List<Ticket> tickets = Arrays.asList(ticket);
         User user1 = new User("firstname1","lastName1","email1@gmail.com",tickets);
         User user2 = new User("firstname2","lastName2","email2@gmail.com",tickets);
@@ -83,16 +86,18 @@ class TicketControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)))
-                .andExpect(jsonPath("$[0].type", is("Normal")))
+                .andExpect(jsonPath("$[0].type.price", is(2.50)))
+                .andExpect(jsonPath("$[0].type.duration", is(20)))
                 .andExpect(jsonPath("$[0].ticketValidity", is(firstTicketValidityString)))
-                .andExpect(jsonPath("$[1].type", is("Reduced")))
+                .andExpect(jsonPath("$[1].type.price", is(1.50)))
+                .andExpect(jsonPath("$[1].type.duration", is(20)))
                 .andExpect(jsonPath("$[1].ticketValidity", is(secondTicketValidityString)));
 
     }
 
     private User generateUser() {
-        Ticket ticket = new Ticket("Normal", LocalDateTime.now().plusMinutes(50));
-        Ticket ticket1 = new Ticket("Reduced", LocalDateTime.now().plusHours(1));
+        Ticket ticket = new Ticket(TicketType.NORMAL_20, LocalDateTime.now().plusMinutes(50));
+        Ticket ticket1 = new Ticket(TicketType.REDUCED_20, LocalDateTime.now().plusHours(1));
         List<Ticket> tickets = new ArrayList<>();
         tickets.add(ticket);
         tickets.add(ticket1);
@@ -107,21 +112,21 @@ class TicketControllerTest {
         Ticket newTicket = generateTicket();
         given(userRepository.findById("1")).willReturn(Optional.of(user));
 
-        String jsonTicketString = entityToJson.convertToJson(newTicket);
-        LocalDateTime nowPlus50min = LocalDateTime.now().plusMinutes(50);
-        String formattedDate = nowPlus50min.format(dateTimeFormatter);
-
+        String jsonTicketString = "{\"type\":\"NORMAL_20\"}";
+        LocalDateTime nowPlus20min = LocalDateTime.now().plusMinutes(20);
+        String formattedDate = nowPlus20min.format(dateTimeFormatter);
         mockMvc.perform(put("/api/tickets/{userId}", user.getUserId())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonTicketString)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.type",is(newTicket.getType())))
+                .andExpect(jsonPath("$.type.price",is(newTicket.getType().getPrice())))
+                .andExpect(jsonPath("$.type.duration",is(newTicket.getType().getDuration())))
                 .andExpect(jsonPath("$.ticketValidity",is(formattedDate)));
     }
 
     private Ticket generateTicket() {
-        return new Ticket("Normal");
+        return new Ticket(TicketType.NORMAL_20);
     }
 
     @Test
@@ -140,16 +145,18 @@ class TicketControllerTest {
         mockMvc.perform(delete("/api/tickets")
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].type",is(ticket1.getType())))
+                .andExpect(jsonPath("$[0].type.price",is(ticket1.getType().getPrice())))
+                .andExpect(jsonPath("$[0].type.duration",is(ticket1.getType().getDuration())))
                 .andExpect(jsonPath("$[0].ticketValidity",is(ticket1Validity)))
-                .andExpect(jsonPath("$[1].type",is(ticket2.getType())))
+                .andExpect(jsonPath("$[1].type.price",is(ticket2.getType().getPrice())))
+                .andExpect(jsonPath("$[1].type.duration",is(ticket2.getType().getDuration())))
                 .andExpect(jsonPath("$[1].ticketValidity",is(ticket2Validity)));
     }
 
     private List<User> generateUserListWithInactiveTickets() {
         List<Ticket> inactiveTickets = new ArrayList<>();
         List<User> usersWithInactiveTickets = new ArrayList<>();
-        Ticket ticket = new Ticket("Normal", LocalDateTime.now().minusHours(1));
+        Ticket ticket = new Ticket(TicketType.NORMAL_20, LocalDateTime.now().minusHours(1));
         inactiveTickets.add(ticket);
         User user1 = new User("1","1","1@email.com", inactiveTickets);
         User user2 = new User("2","2","2@email.com", inactiveTickets);

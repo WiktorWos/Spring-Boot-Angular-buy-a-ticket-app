@@ -9,6 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import springresttest.buyaticket.jackson.EntityToJson;
 import springresttest.buyaticket.model.Ticket;
+import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
 
@@ -63,7 +64,7 @@ class UserControllerTest {
     }
 
     private List<User> generateUserList() {
-        Ticket ticket = new Ticket("Normal", LocalDateTime.now());
+        Ticket ticket = new Ticket(TicketType.NORMAL_20, LocalDateTime.now());
         List<Ticket> tickets = Arrays.asList(ticket);
         User user1 = new User("firstname1","lastName1","email1@gmail.com",tickets);
         User user2 = new User("firstname2","lastName2","email2@gmail.com",tickets);

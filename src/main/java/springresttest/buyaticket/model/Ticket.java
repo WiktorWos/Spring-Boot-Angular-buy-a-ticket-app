@@ -10,27 +10,26 @@ import java.time.LocalDateTime;
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Ticket {
-    private String type;
-
+    private TicketType type;
     private LocalDateTime ticketValidity;
 
     public Ticket() {
     }
 
-    public Ticket(String type) {
+    public Ticket(TicketType type) {
         this.type = type;
     }
 
-    public Ticket(String type, LocalDateTime ticketValidity) {
+    public Ticket(TicketType type, LocalDateTime ticketValidity) {
         this.type = type;
         this.ticketValidity = ticketValidity;
     }
 
-    public String getType() {
+    public TicketType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(TicketType type) {
         this.type = type;
     }
 

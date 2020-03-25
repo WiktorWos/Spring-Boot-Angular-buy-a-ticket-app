@@ -7,6 +7,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import springresttest.buyaticket.email.EmailSender;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
@@ -35,7 +36,7 @@ class TicketControllerTest {
     UserRepository userRepository;
 
     @MockBean
-    PdfGenerator pdfGenerator;
+    EmailSender emailSender;
 
     private DateTimeFormatter dateTimeFormatter;
 

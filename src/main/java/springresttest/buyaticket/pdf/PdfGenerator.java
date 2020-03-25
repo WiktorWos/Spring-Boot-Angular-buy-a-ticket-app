@@ -1,19 +1,16 @@
 package springresttest.buyaticket.pdf;
 
-import com.google.zxing.WriterException;
 import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BarcodeQRCode;
 import com.itextpdf.text.pdf.PdfWriter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.User;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.format.DateTimeFormatter;
 
 @Component
@@ -22,9 +19,10 @@ public class PdfGenerator {
     private static final Font TITLE_FONT = FontFactory.getFont(FontFactory.HELVETICA, 20, Font.BOLD);
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
 
-    public void generatePfd(User user, Ticket ticket) throws IOException, DocumentException, URISyntaxException {
+    public void generatePfd(User user, Ticket ticket,
+                            OutputStream outputStream) throws IOException, DocumentException, URISyntaxException {
         Document document = new Document();
-        PdfWriter.getInstance(document, new FileOutputStream("src/main/resources/ticket.pdf"));
+        PdfWriter.getInstance(document, outputStream);
         document.open();
         Image qrCodeImg = getQrCodeImg(ticket);
         Paragraph ticketData = getTicketDataParagraph(user, ticket);

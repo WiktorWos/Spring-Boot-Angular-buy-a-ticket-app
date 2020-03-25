@@ -1,18 +1,14 @@
 package springresttest.buyaticket.controller;
 
-import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import springresttest.buyaticket.email.EmailSender;
 import springresttest.buyaticket.exceptions.UserNotFoundException;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.User;
-import springresttest.buyaticket.pdf.PdfGenerator;
 import springresttest.buyaticket.repository.UserRepository;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,13 +16,13 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 public class TicketController {
     private UserRepository userRepository;
-    private PdfGenerator pdfGenerator;
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm");
+    private EmailSender emailSender;
+
 
     @Autowired
-    public TicketController(UserRepository userRepository, PdfGenerator pdfGenerator) {
+    public TicketController(UserRepository userRepository, EmailSender emailSender) {
         this.userRepository = userRepository;
-        this.pdfGenerator = pdfGenerator;
+        this.emailSender = emailSender;
     }
 
     @GetMapping("/tickets")
@@ -48,20 +44,12 @@ public class TicketController {
         int ticketDuration = ticket.getType().getDuration();
         ticket.setTicketValidity(LocalDateTime.now().plusMinutes(ticketDuration));
         user.getTickets().add(ticket);
-        generatePdf(user, ticket);
+        emailSender.sendEmail(user, ticket);
         userRepository.save(user);
         return ticket;
     }
 
 
-
-    private void generatePdf(User user, Ticket ticket){
-        try {
-            pdfGenerator.generatePfd(user, ticket);
-        } catch (IOException|DocumentException|URISyntaxException e) {
-            e.printStackTrace();
-        }
-    }
 
     @DeleteMapping("/tickets")
     public List<Ticket> deleteInactiveTickets() {

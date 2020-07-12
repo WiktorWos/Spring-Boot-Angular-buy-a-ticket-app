@@ -46,9 +46,22 @@ public class UserController {
     @PutMapping("/users/{id}")
     public User updateUser(@Valid @RequestBody User newUser, @PathVariable String id) {
         User userToUpdate = userRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Entity not found"));
-        User userWithUpdatedProperties = getUserWithUpdatedProperties(userToUpdate,newUser);
+        String newUsersEmail = newUser.getEmail();
+        List<User> usersFoundByGivenEmail = userRepository.findByEmail(newUsersEmail);
+        if(!usersFoundByGivenEmail.isEmpty()) {
+            User user = usersFoundByGivenEmail.get(0);
+            checkIfNewEmailIsAlreadyUsed(user, id);
+        }
+        User userWithUpdatedProperties = getUserWithUpdatedProperties(userToUpdate, newUser);
         userRepository.save(userWithUpdatedProperties);
         return userWithUpdatedProperties;
+    }
+
+    private void checkIfNewEmailIsAlreadyUsed(User userFoundByGivenEmail, String pathVariableId) {
+        String foundUsersId = userFoundByGivenEmail.getUserId();
+        if (!foundUsersId.equals(pathVariableId)) {
+            throw new RuntimeException("This email is already used.");
+        }
     }
 
     private User getUserWithUpdatedProperties(User userToUpdate, User newUser) {

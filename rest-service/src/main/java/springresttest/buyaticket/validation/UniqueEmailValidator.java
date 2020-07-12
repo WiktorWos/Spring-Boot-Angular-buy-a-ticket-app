@@ -7,6 +7,7 @@ import springresttest.buyaticket.repository.UserRepository;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
+import java.util.Optional;
 
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
     private UserRepository userRepository;
@@ -18,8 +19,8 @@ public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, St
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext constraintValidatorContext) {
-        List<User> usersWithGivenEmail = userRepository.findByEmail(email);
-        return usersWithGivenEmail.isEmpty();
+        List<User> userWithGivenEmail = userRepository.findByEmail(email);
+        return userWithGivenEmail.isEmpty();
     }
 
     @Override

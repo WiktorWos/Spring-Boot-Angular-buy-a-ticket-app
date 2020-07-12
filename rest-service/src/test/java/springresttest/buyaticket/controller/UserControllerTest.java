@@ -182,8 +182,11 @@ class UserControllerTest {
     void updateUser() throws Exception {
         String jsonUpdatedUserString;
         User user = generateUser();
+        user.setUserId("1");
         User updatedUser = generateUpdatedUser();
-        List<User> usersFoundByUpdatedEmail = generateFoundByEmailUsers(1);
+        updatedUser.setUserId("1");
+        List<User> usersFoundByUpdatedEmail = new ArrayList<>();
+        usersFoundByUpdatedEmail.add(user);
 
         given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
         given(userRepository.findById("1")).willReturn(Optional.of(user));
@@ -206,7 +209,12 @@ class UserControllerTest {
         String jsonUpdatedUserString;
         User user = generateUser();
         User updatedUser = generateUpdatedUser();
-        List<User> usersFoundByUpdatedEmail = generateFoundByEmailUsers(2);
+        User differentUserFoundByEmail = new User("different", "different",
+                updatedUser.getEmail(), new ArrayList<>());
+        differentUserFoundByEmail.setUserId("2");
+        List<User> usersFoundByUpdatedEmail = new ArrayList<>();
+        usersFoundByUpdatedEmail.add(differentUserFoundByEmail);
+
 
         given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
         given(userRepository.findById("1")).willReturn(Optional.of(user));
@@ -219,7 +227,7 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status", is(400)))
-                .andExpect(jsonPath("$.message[0]", is("There is already user with this email!")));
+                .andExpect(jsonPath("$.message[0]", is("This email is already used.")));
 
     }
 
@@ -229,14 +237,6 @@ class UserControllerTest {
         return user;
     }
 
-    private List<User> generateFoundByEmailUsers(int howManyUsers) {
-        List<User> usersFoundByUpdatedEmail = new ArrayList<>();
-        User user = generateUser();
-        for(int i=0; i<howManyUsers; i++) {
-            usersFoundByUpdatedEmail.add(user);
-        }
-        return usersFoundByUpdatedEmail;
-    }
 
     @Test
     void deleteUser() throws Exception {

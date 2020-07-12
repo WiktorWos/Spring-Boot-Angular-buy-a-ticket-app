@@ -1,0 +1,22 @@
+<div class="card my-5">
+  <div class="card-body">
+    <table class="table table-bordered table-striped">
+      <thead class="thead-dark">
+      <tr>
+        <th scope="col">Type</th>
+        <th scope="col">Price</th>
+        <th scope="col">Duration</th>
+        <th scope="col">Valid until</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr *ngFor="let ticket of tickets">
+        <td>{{ ticket.type.typeName }}</td>
+        <td>{{ ticket.type.price }}</td>
+        <td>{{ ticket.type.duration }}</td>
+        <td>{{ ticket.ticketValidity }}</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

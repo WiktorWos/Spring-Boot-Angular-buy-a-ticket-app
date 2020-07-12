@@ -9,11 +9,13 @@ import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(origins = "http://localhost:4200")
 public class TicketController {
     private UserRepository userRepository;
     private EmailSender emailSender;

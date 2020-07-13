@@ -24,15 +24,18 @@ public class User {
     @UniqueEmailOnUpdate(groups = OnUpdate.class)
     private String email;
 
+    private String password;
+
     private List<Ticket> tickets;
 
     public User() {
     }
 
-    public User(String firstName, String lastName, String email, List<Ticket> tickets) {
+    public User(String firstName, String lastName, String email, String password, List<Ticket> tickets) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
+        this.password = password;
         this.tickets = tickets;
     }
 
@@ -78,5 +81,13 @@ public class User {
 
     public void addTicket(Ticket ticket) {
         this.tickets.add(ticket);
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 }

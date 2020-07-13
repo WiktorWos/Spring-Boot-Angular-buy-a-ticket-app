@@ -6,12 +6,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import springresttest.buyaticket.jackson.EntityToJson;
+import springresttest.buyaticket.model.AuthenticationRequest;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
+import springresttest.buyaticket.service.MyUserDetailsService;
+import springresttest.buyaticket.util.JwtUtil;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -35,6 +40,15 @@ class UserControllerTest {
 
     @MockBean
     UserRepository userRepository;
+
+    @MockBean
+    AuthenticationManager authenticationManager;
+
+    @MockBean
+    MyUserDetailsService userDetailsService;
+
+    @MockBean
+    JwtUtil jwtUtil;
 
     private EntityToJson entityToJson;
 
@@ -66,8 +80,8 @@ class UserControllerTest {
     private List<User> generateUserList() {
         Ticket ticket = new Ticket(TicketType.NORMAL_20, LocalDateTime.now());
         List<Ticket> tickets = Arrays.asList(ticket);
-        User user1 = new User("firstname1","lastName1","email1@gmail.com",tickets);
-        User user2 = new User("firstname2","lastName2","email2@gmail.com",tickets);
+        User user1 = new User("firstname1","lastName1","email1@gmail.com", "pass",tickets);
+        User user2 = new User("firstname2","lastName2","email2@gmail.com", "pass",tickets);
         List<User> users = Arrays.asList(user1, user2);
         return users;
     }
@@ -87,7 +101,7 @@ class UserControllerTest {
 
     private User generateUser() {
         List<Ticket> tickets = new ArrayList<>();
-        User user = new User("firstName1","lastName1","email1@gmail.com",tickets);
+        User user = new User("firstName1","lastName1","email1@gmail.com", "pass",tickets);
         return user;
     }
 
@@ -136,7 +150,7 @@ class UserControllerTest {
 
     private User generateUserWithoutLastName() {
         List<Ticket> tickets = new ArrayList<>();
-        User user = new User("firstName","","email@gmail.com",tickets);
+        User user = new User("firstName","","email@gmail.com", "pass",tickets);
         return user;
     }
 
@@ -156,7 +170,7 @@ class UserControllerTest {
 
     private User generateUserWithInvalidEmail() {
         List<Ticket> tickets = new ArrayList<>();
-        User user = new User("firstName","lastName","invalid",tickets);
+        User user = new User("firstName","lastName","invalid", "pass",tickets);
         return user;
     }
 
@@ -210,7 +224,7 @@ class UserControllerTest {
         User user = generateUser();
         User updatedUser = generateUpdatedUser();
         User differentUserFoundByEmail = new User("different", "different",
-                updatedUser.getEmail(), new ArrayList<>());
+                updatedUser.getEmail(), "pass", new ArrayList<>());
         differentUserFoundByEmail.setUserId("2");
         List<User> usersFoundByUpdatedEmail = new ArrayList<>();
         usersFoundByUpdatedEmail.add(differentUserFoundByEmail);
@@ -233,7 +247,7 @@ class UserControllerTest {
 
     private User generateUpdatedUser() {
         List<Ticket> tickets = new ArrayList<>();
-        User user = new User("updatedName","updatedLastName","email1@gmail.com",tickets);
+        User user = new User("updatedName","updatedLastName","email1@gmail.com", "pass",tickets);
         return user;
     }
 

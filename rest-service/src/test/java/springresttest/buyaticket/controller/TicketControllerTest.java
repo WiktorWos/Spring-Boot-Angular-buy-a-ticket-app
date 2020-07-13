@@ -67,8 +67,8 @@ class TicketControllerTest {
     private List<User> generateUserList() {
         Ticket ticket = new Ticket(TicketType.REDUCED_20, LocalDateTime.now().plusMinutes(50));
         List<Ticket> tickets = Arrays.asList(ticket);
-        User user1 = new User("firstname1","lastName1","email1@gmail.com",tickets);
-        User user2 = new User("firstname2","lastName2","email2@gmail.com",tickets);
+        User user1 = new User("firstname1","lastName1","email1@gmail.com", "pass" ,tickets);
+        User user2 = new User("firstname2","lastName2","email2@gmail.com", "pass",tickets);
         List<User> users = Arrays.asList(user1, user2);
         return users;
     }
@@ -102,7 +102,7 @@ class TicketControllerTest {
         List<Ticket> tickets = new ArrayList<>();
         tickets.add(ticket);
         tickets.add(ticket1);
-        User user = new User("FirstName", "LastName", "email@gmail.com", tickets);
+        User user = new User("FirstName", "LastName", "email@gmail.com","pass", tickets);
         return user;
     }
 
@@ -159,8 +159,8 @@ class TicketControllerTest {
         List<User> usersWithInactiveTickets = new ArrayList<>();
         Ticket ticket = new Ticket(TicketType.NORMAL_20, LocalDateTime.now().minusHours(1));
         inactiveTickets.add(ticket);
-        User user1 = new User("1","1","1@email.com", inactiveTickets);
-        User user2 = new User("2","2","2@email.com", inactiveTickets);
+        User user1 = new User("1","1","1@email.com", "pass", inactiveTickets);
+        User user2 = new User("2","2","2@email.com", "pass", inactiveTickets);
         usersWithInactiveTickets.add(user1);
         usersWithInactiveTickets.add(user2);
         return usersWithInactiveTickets;

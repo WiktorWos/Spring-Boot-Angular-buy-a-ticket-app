@@ -1,11 +1,20 @@
 package springresttest.buyaticket.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springresttest.buyaticket.exceptions.UserNotFoundException;
+import springresttest.buyaticket.model.AuthenticationRequest;
+import springresttest.buyaticket.model.AuthenticationResponse;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
+import springresttest.buyaticket.service.MyUserDetailsService;
+import springresttest.buyaticket.util.JwtUtil;
 import springresttest.buyaticket.validation.OnCreate;
 import springresttest.buyaticket.validation.OnUpdate;
 
@@ -19,10 +28,34 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:4200")
 public class UserController {
     private UserRepository userRepository;
+    private AuthenticationManager authenticationManager;
+    private MyUserDetailsService userDetailsService;
+    private JwtUtil jwtUtil;
 
     @Autowired
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, AuthenticationManager authenticationManager,
+                          MyUserDetailsService userDetailsService, JwtUtil jwtUtil) {
         this.userRepository = userRepository;
+        this.authenticationManager = authenticationManager;
+        this.userDetailsService = userDetailsService;
+        this.jwtUtil = jwtUtil;
+    }
+
+    @PostMapping("/authenticate")
+    public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws Exception {
+        try {
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(authenticationRequest.getUsername(),
+                            authenticationRequest.getPassword())
+            );
+        } catch(BadCredentialsException e) {
+            throw new RuntimeException("Incorrect username or password", e);
+        }
+
+        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        final String jwt = jwtUtil.generateToken(userDetails);
+
+        return ResponseEntity.ok(new AuthenticationResponse(jwt));
     }
 
     @GetMapping("/users")

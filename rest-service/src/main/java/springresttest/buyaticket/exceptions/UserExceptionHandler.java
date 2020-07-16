@@ -24,6 +24,24 @@ public class UserExceptionHandler {
     }
 
     @ExceptionHandler
+    public ResponseEntity<UserErrorResponse> handleException(WrongCredentialsException e) {
+        List<String> messages = new ArrayList<>();
+        messages.add(e.getMessage());
+        UserErrorResponse error =
+                new UserErrorResponse(HttpStatus.FORBIDDEN.value(), messages,  System.currentTimeMillis());
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<UserErrorResponse> handleException(UsedEmailException e) {
+        List<String> messages = new ArrayList<>();
+        messages.add(e.getMessage());
+        UserErrorResponse error =
+                new UserErrorResponse(HttpStatus.CONFLICT.value(), messages,  System.currentTimeMillis());
+        return new ResponseEntity<>(error, HttpStatus.CONFLICT);
+    }
+
+    @ExceptionHandler
     public ResponseEntity<UserErrorResponse> handleException(MethodArgumentNotValidException e) {
         List<String> messages = e.getBindingResult()
                 .getFieldErrors()

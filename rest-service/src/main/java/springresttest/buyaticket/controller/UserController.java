@@ -8,7 +8,9 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import springresttest.buyaticket.exceptions.UsedEmailException;
 import springresttest.buyaticket.exceptions.UserNotFoundException;
+import springresttest.buyaticket.exceptions.WrongCredentialsException;
 import springresttest.buyaticket.model.AuthenticationRequest;
 import springresttest.buyaticket.model.AuthenticationResponse;
 import springresttest.buyaticket.model.User;
@@ -49,7 +51,7 @@ public class UserController {
                             authenticationRequest.getPassword())
             );
         } catch(BadCredentialsException e) {
-            throw new RuntimeException("Incorrect username or password", e);
+            throw new WrongCredentialsException("Wrong email or password");
         }
 
         final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
@@ -93,7 +95,7 @@ public class UserController {
     private void checkIfNewEmailIsAlreadyUsed(User userFoundByGivenEmail, String pathVariableId) {
         String foundUsersId = userFoundByGivenEmail.getUserId();
         if (!foundUsersId.equals(pathVariableId)) {
-            throw new RuntimeException("This email is already used.");
+            throw new UsedEmailException("This email is already used.");
         }
     }
 

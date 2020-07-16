@@ -11,7 +11,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import springresttest.buyaticket.jackson.EntityToJson;
 import springresttest.buyaticket.model.AuthenticationRequest;
 import springresttest.buyaticket.model.Ticket;
@@ -244,8 +243,8 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonUpdatedUserString)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status", is(400)))
+                .andExpect(status().isConflict())
+                .andExpect(jsonPath("$.status", is(409)))
                 .andExpect(jsonPath("$.message[0]", is("This email is already used.")));
 
     }

@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import springresttest.buyaticket.email.EmailSender;
 import springresttest.buyaticket.model.Ticket;
@@ -13,6 +15,8 @@ import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.pdf.PdfGenerator;
 import springresttest.buyaticket.repository.UserRepository;
+import springresttest.buyaticket.service.MyUserDetailsService;
+import springresttest.buyaticket.util.JwtUtil;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -28,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TicketController.class)
+@WithMockUser
 class TicketControllerTest {
     @Autowired
     MockMvc mockMvc;
@@ -37,6 +42,12 @@ class TicketControllerTest {
 
     @MockBean
     EmailSender emailSender;
+
+    @MockBean
+    MyUserDetailsService userDetailsService;
+
+    @MockBean
+    JwtUtil jwtUtil;
 
     private DateTimeFormatter dateTimeFormatter;
 

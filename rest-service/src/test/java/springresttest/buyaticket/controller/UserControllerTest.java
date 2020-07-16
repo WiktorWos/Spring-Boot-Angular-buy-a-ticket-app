@@ -7,6 +7,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import springresttest.buyaticket.jackson.EntityToJson;
@@ -15,6 +18,7 @@ import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
+import springresttest.buyaticket.security.MyUserPrincipal;
 import springresttest.buyaticket.service.MyUserDetailsService;
 import springresttest.buyaticket.util.JwtUtil;
 
@@ -33,6 +37,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 
 @WebMvcTest(UserController.class)
+@WithMockUser
 class UserControllerTest {
 
     @Autowired
@@ -263,5 +268,28 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.userId",is(user.getUserId())));
+    }
+
+    @Test
+    void createAuthenticationToken() throws Exception {
+        User user = generateUser();
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest(user.getEmail(), user.getPassword());
+        String jsonAuthenticationString = entityToJson.convertToJson(authenticationRequest);
+        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
+                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
+        UserDetails userDetails = new MyUserPrincipal(user);
+        String jwt = "jwtAuthenticationTest";
+
+        given(authenticationManager.authenticate(usernamePasswordAuthenticationToken))
+                .willReturn(usernamePasswordAuthenticationToken);
+        given(userDetailsService.loadUserByUsername(user.getEmail())).willReturn(userDetails);
+        given(jwtUtil.generateToken(userDetails)).willReturn(jwt);
+
+        mockMvc.perform(post("/api/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonAuthenticationString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("jwt", is(jwt)));
     }
 }

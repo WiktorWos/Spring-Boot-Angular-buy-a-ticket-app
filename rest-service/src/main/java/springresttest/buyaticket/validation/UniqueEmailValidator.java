@@ -3,23 +3,23 @@ package springresttest.buyaticket.validation;
 import org.springframework.beans.factory.annotation.Autowired;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
+import springresttest.buyaticket.service.UserService;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
 import java.util.List;
-import java.util.Optional;
 
 public class UniqueEmailValidator implements ConstraintValidator<UniqueEmail, String> {
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
-    public UniqueEmailValidator(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UniqueEmailValidator(UserService userService) {
+        this.userService = userService;
     }
 
     @Override
     public boolean isValid(String email, ConstraintValidatorContext constraintValidatorContext) {
-        List<User> userWithGivenEmail = userRepository.findByEmail(email);
+        List<User> userWithGivenEmail = userService.findByEmail(email);
         return userWithGivenEmail.isEmpty();
     }
 

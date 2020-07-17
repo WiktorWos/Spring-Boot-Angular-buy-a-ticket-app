@@ -2,23 +2,23 @@ package springresttest.buyaticket.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import springresttest.buyaticket.exceptions.UsedEmailException;
+import springresttest.buyaticket.exceptions.WrongCredentialsException;
 import springresttest.buyaticket.jackson.EntityToJson;
 import springresttest.buyaticket.model.AuthenticationRequest;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
-import springresttest.buyaticket.repository.UserRepository;
-import springresttest.buyaticket.security.MyUserPrincipal;
 import springresttest.buyaticket.service.MyUserDetailsService;
+import springresttest.buyaticket.service.UserService;
 import springresttest.buyaticket.util.JwtUtil;
 
 import java.time.LocalDateTime;
@@ -29,7 +29,10 @@ import java.util.Optional;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -43,7 +46,7 @@ class UserControllerTest {
     MockMvc mockMvc;
 
     @MockBean
-    UserRepository userRepository;
+    UserService userService;
 
     @MockBean
     AuthenticationManager authenticationManager;
@@ -65,7 +68,7 @@ class UserControllerTest {
     void getAllUsers() throws Exception {
         List<User> users = generateUserList();
 
-        given(userRepository.findAll()).willReturn(users);
+        given(userService.findAll()).willReturn(users);
 
 
         mockMvc.perform(get("/api/users")
@@ -95,7 +98,7 @@ class UserControllerTest {
         User user = generateUser();
         user.setUserId("1");
 
-        given(userRepository.findById("1")).willReturn(Optional.of(user));
+        given(userService.findById("1")).willReturn(Optional.of(user));
 
         mockMvc.perform(get("/api/users/{id}",1)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -111,7 +114,7 @@ class UserControllerTest {
 
     @Test
     void getOneUser_EntityNotFound() throws Exception {
-        given(userRepository.findById("1")).willReturn(Optional.empty());
+        given(userService.findById("1")).willReturn(Optional.empty());
 
         mockMvc.perform(get("/api/users/{id}",1)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -185,7 +188,7 @@ class UserControllerTest {
         users.add(user);
         String jsonUserString = entityToJson.convertToJson(user);
 
-        given(userRepository.findByEmail(user.getEmail())).willReturn(users);
+        given(userService.findByEmail(any())).willReturn(users);
 
         mockMvc.perform(post("/api/users")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -206,8 +209,8 @@ class UserControllerTest {
         List<User> usersFoundByUpdatedEmail = new ArrayList<>();
         usersFoundByUpdatedEmail.add(user);
 
-        given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
-        given(userRepository.findById("1")).willReturn(Optional.of(user));
+        given(userService.findByEmail(ArgumentMatchers.any())).willReturn(usersFoundByUpdatedEmail);
+        given(userService.findById("1")).willReturn(Optional.of(user));
 
         jsonUpdatedUserString = entityToJson.convertToJson(updatedUser);
 
@@ -225,19 +228,10 @@ class UserControllerTest {
     @Test
     void updateUser_UserWithExistingEmail() throws Exception {
         String jsonUpdatedUserString;
-        User user = generateUser();
         User updatedUser = generateUpdatedUser();
-        User differentUserFoundByEmail = new User("different", "different",
-                updatedUser.getEmail(), "pass", new ArrayList<>());
-        differentUserFoundByEmail.setUserId("2");
-        List<User> usersFoundByUpdatedEmail = new ArrayList<>();
-        usersFoundByUpdatedEmail.add(differentUserFoundByEmail);
-
-
-        given(userRepository.findByEmail(updatedUser.getEmail())).willReturn(usersFoundByUpdatedEmail);
-        given(userRepository.findById("1")).willReturn(Optional.of(user));
-
         jsonUpdatedUserString = entityToJson.convertToJson(updatedUser);
+
+        doThrow(new UsedEmailException("This email is already used.")).when(userService).updateUser(any(), any());
 
         mockMvc.perform(put("/api/users/{id}",1)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -261,7 +255,7 @@ class UserControllerTest {
         User user = generateUser();
         user.setUserId("1");
 
-        given(userRepository.findById("1")).willReturn(Optional.of(user));
+        given(userService.findById("1")).willReturn(Optional.of(user));
 
         mockMvc.perform(delete("/api/users/{id}",1)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -274,15 +268,9 @@ class UserControllerTest {
         User user = generateUser();
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(user.getEmail(), user.getPassword());
         String jsonAuthenticationString = entityToJson.convertToJson(authenticationRequest);
-        UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken =
-                new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
-        UserDetails userDetails = new MyUserPrincipal(user);
         String jwt = "jwtAuthenticationTest";
 
-        given(authenticationManager.authenticate(usernamePasswordAuthenticationToken))
-                .willReturn(usernamePasswordAuthenticationToken);
-        given(userDetailsService.loadUserByUsername(user.getEmail())).willReturn(userDetails);
-        given(jwtUtil.generateToken(userDetails)).willReturn(jwt);
+        given(userService.generateJwt(ArgumentMatchers.any())).willReturn(jwt);
 
         mockMvc.perform(post("/api/authenticate")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -290,5 +278,23 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("jwt", is(jwt)));
+    }
+
+    @Test
+    void createAuthenticationToken_withBadCredentials() throws Exception {
+        User user = generateUser();
+        AuthenticationRequest authenticationRequest = new AuthenticationRequest(user.getEmail(), user.getPassword());
+        String jsonAuthenticationString = entityToJson.convertToJson(authenticationRequest);
+
+        given(userService.generateJwt(ArgumentMatchers.any()))
+                .willThrow(new WrongCredentialsException("Wrong email or password"));
+
+        mockMvc.perform(post("/api/authenticate")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(jsonAuthenticationString)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status", is(403)))
+                .andExpect(jsonPath("$.message[0]", is("Wrong email or password")));
     }
 }

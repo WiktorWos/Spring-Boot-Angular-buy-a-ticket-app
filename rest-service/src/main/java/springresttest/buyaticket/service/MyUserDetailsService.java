@@ -9,7 +9,6 @@ import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.security.MyUserPrincipal;
 import springresttest.buyaticket.repository.UserRepository;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service

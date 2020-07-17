@@ -2,14 +2,13 @@ package springresttest.buyaticket.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import springresttest.buyaticket.email.EmailSender;
 import springresttest.buyaticket.exceptions.UserNotFoundException;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.User;
 import springresttest.buyaticket.repository.UserRepository;
+import springresttest.buyaticket.service.TicketService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,71 +16,32 @@ import java.util.stream.Collectors;
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:4200")
 public class TicketController {
-    private UserRepository userRepository;
-    private EmailSender emailSender;
-
+    private TicketService ticketService;
 
     @Autowired
-    public TicketController(UserRepository userRepository, EmailSender emailSender) {
-        this.userRepository = userRepository;
-        this.emailSender = emailSender;
+    public TicketController(TicketService ticketService) {
+        this.ticketService = ticketService;
     }
 
     @GetMapping("/tickets")
     public List<Ticket> findAll(){
-        List<User> allUsers = userRepository.findAll();
-        List<Ticket> allTickets = getAllTickets(allUsers);
-        return allTickets;
+        return ticketService.findAllTickets();
     }
 
     @GetMapping("/tickets/{userId}")
     public List<Ticket> findUsersTickets(@PathVariable String userId) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Entity not found"));
-        return user.getTickets();
+        return ticketService.getUsersTickets(userId);
     }
 
     @PutMapping("/tickets/{userId}")
     public Ticket addTicket(@PathVariable String userId, @RequestBody Ticket ticket) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("Entity not found"));
-        int ticketDuration = ticket.getType().getDuration();
-        ticket.setTicketValidity(LocalDateTime.now().plusMinutes(ticketDuration));
-        user.getTickets().add(ticket);
-        emailSender.sendEmail(user, ticket);
-        userRepository.save(user);
-        return ticket;
+        return ticketService.addTicket(ticket, userId);
     }
-
-
 
     @DeleteMapping("/tickets")
     public List<Ticket> deleteInactiveTickets() {
-        List<User> allUsers = userRepository.findAll();
-        List<Ticket> allTickets = getAllTickets(allUsers);
-        List<Ticket> inactiveTickets = getInactiveTickets(allTickets);
-
-        removeInactiveTickets(allUsers);
-        userRepository.saveAll(allUsers);
+        List<Ticket> inactiveTickets = ticketService.getInactiveTickets();
+        ticketService.deleteInactiveTickets();
         return inactiveTickets;
-    }
-
-    private List<Ticket> getAllTickets(List<User> allUsers) {
-        return allUsers.stream()
-                .flatMap(user -> user.getTickets().stream())
-                .collect(Collectors.toList());
-    }
-
-    private List<Ticket> getInactiveTickets(List<Ticket> allTickets) {
-        return allTickets.stream()
-                .filter(ticket -> ticket.getTicketValidity().isBefore(LocalDateTime.now()))
-                .collect(Collectors.toList());
-    }
-
-    private void removeInactiveTickets(List<User> allUsers) {
-        allUsers.forEach(user -> user.getTickets()
-                .removeIf(this::isTicketInactive));
-    }
-
-    private boolean isTicketInactive(Ticket ticket) {
-        return ticket.getTicketValidity().isBefore(LocalDateTime.now());
     }
 }

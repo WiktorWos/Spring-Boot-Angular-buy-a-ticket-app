@@ -6,11 +6,13 @@ import { AppComponent } from './app.component';
 import { TicketListComponent } from './ticket-list/ticket-list.component';
 import {HttpClientModule} from '@angular/common/http';
 import {TicketService} from './ticket.service';
+import { LoginComponent } from './login/login.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    TicketListComponent
+    TicketListComponent,
+    LoginComponent
   ],
   imports: [
     BrowserModule,

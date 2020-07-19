@@ -1,1 +1,12 @@
 /* You can add global styles to this file, and also import other style files */
+@import url('https://fonts.googleapis.com/css?family=Nunito');
+
+$background-start: #f5c20c;
+$background-end: #fff07d;
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: linear-gradient(to right, $background-start, $background-end);
+  margin: 0;
+  height: 100vh;
+}

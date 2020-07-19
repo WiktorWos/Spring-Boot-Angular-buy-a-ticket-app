@@ -2,6 +2,7 @@ package springresttest.buyaticket.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import springresttest.buyaticket.exceptions.UsedEmailException;
@@ -14,6 +15,7 @@ import springresttest.buyaticket.validation.OnCreate;
 import springresttest.buyaticket.validation.OnUpdate;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 

@@ -5,6 +5,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import springresttest.buyaticket.exceptions.UsedEmailException;
 import springresttest.buyaticket.exceptions.UserNotFoundException;
@@ -23,14 +24,16 @@ public class UserService {
     private AuthenticationManager authenticationManager;
     private MyUserDetailsService userDetailsService;
     private JwtUtil jwtUtil;
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     public UserService(UserRepository userRepository, AuthenticationManager authenticationManager,
-                       MyUserDetailsService userDetailsService, JwtUtil jwtUtil) {
+                       MyUserDetailsService userDetailsService, JwtUtil jwtUtil, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.userDetailsService = userDetailsService;
         this.jwtUtil = jwtUtil;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public Optional<User> findById(String id) {
@@ -42,7 +45,14 @@ public class UserService {
     }
 
     public void save(User user) {
-        userRepository.save(user);
+        User userWithEncodedPassword = getUserWithEncodedPassword(user);
+        userRepository.save(userWithEncodedPassword);
+    }
+
+    private User getUserWithEncodedPassword(User user) {
+        String password = user.getPassword();
+        user.setPassword(passwordEncoder.encode(password));
+        return user;
     }
 
     public void delete(User user) {

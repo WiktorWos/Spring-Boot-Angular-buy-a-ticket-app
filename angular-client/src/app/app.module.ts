@@ -2,24 +2,27 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppRoutingModule } from './app-routing.module';
+import { FormsModule } from '@angular/forms';
+
 import { AppComponent } from './app.component';
-import { TicketListComponent } from './ticket-list/ticket-list.component';
 import {HttpClientModule} from '@angular/common/http';
-import {TicketService} from './ticket.service';
 import { LoginComponent } from './login/login.component';
+
+import { authInterceptorProviders } from './_helpers/auth.interceptor';
+
 
 @NgModule({
   declarations: [
     AppComponent,
-    TicketListComponent,
     LoginComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    FormsModule
   ],
-  providers: [TicketService],
+  providers: [authInterceptorProviders],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

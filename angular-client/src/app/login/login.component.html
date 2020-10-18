@@ -4,17 +4,53 @@
       <h1> Sign In </h1>
     </header>
     <section>
-      <form action="" class="login-form">
+      <form
+        class="login-form"
+        *ngIf="!isLoggedIn"
+        name="form"
+        (ngSubmit)="onSubmit()"
+        #f="ngForm"
+        novalidate
+      >
         <div class="input-group">
           <label for="username">Username or Email</label>
-          <input type="text" placeholder="Username or Email" id="username">
+          <input
+            type="text"
+            placeholder="Username or Email"
+            id="username"
+            name="username"
+            [(ngModel)]="form.username"
+            required
+            #username="ngModel"
+          />
+          <div
+            *ngIf="f.submitted && username.invalid"
+          >
+            Username is required!
+          </div>
         </div>
         <div class="input-group">
           <label for="password">Password</label>
-          <input type="password" placeholder="Password" id="password">
+          <input
+            type="password"
+            placeholder="Password"
+            id="password"
+            name="password"
+            [(ngModel)]="form.password"
+            required
+            minlength="6"
+            #password="ngModel"
+          />
+          <div *ngIf="password.errors.required">Password is required</div>
+          <div *ngIf="password.errors.minlength">
+            Password must be at least 6 characters
+          </div>
         </div>
-        <div class="input-group"><button>Sign in</button></div>
+        <div class="input-group"><button type="submit">Sign in</button></div>
       </form>
     </section>
+    <div *ngIf="isLoggedIn">
+      Logged in.
+    </div>
   </div>
 </div>

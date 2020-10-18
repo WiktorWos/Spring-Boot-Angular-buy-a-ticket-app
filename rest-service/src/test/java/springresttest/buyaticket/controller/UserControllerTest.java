@@ -8,6 +8,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import springresttest.buyaticket.exceptions.UsedEmailException;
@@ -17,6 +18,7 @@ import springresttest.buyaticket.model.AuthenticationRequest;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
+import springresttest.buyaticket.security.MyUserPrincipal;
 import springresttest.buyaticket.service.MyUserDetailsService;
 import springresttest.buyaticket.service.UserService;
 import springresttest.buyaticket.util.JwtUtil;
@@ -265,10 +267,12 @@ class UserControllerTest {
     @Test
     void createAuthenticationToken() throws Exception {
         User user = generateUser();
+        MyUserPrincipal userDetails = new MyUserPrincipal(user);
         AuthenticationRequest authenticationRequest = new AuthenticationRequest(user.getEmail(), user.getPassword());
         String jsonAuthenticationString = entityToJson.convertToJson(authenticationRequest);
         String jwt = "jwtAuthenticationTest";
 
+        given(userService.getUserDetailsFromAuthRequest(ArgumentMatchers.any())).willReturn(userDetails);
         given(userService.generateJwt(ArgumentMatchers.any())).willReturn(jwt);
 
         mockMvc.perform(post("/api/authenticate")
@@ -276,7 +280,10 @@ class UserControllerTest {
                 .content(jsonAuthenticationString)
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("jwt", is(jwt)));
+                .andExpect(jsonPath("$.jwt", is(jwt)))
+                .andExpect(jsonPath("$.firstName", is(userDetails.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(userDetails.getLastName())))
+                .andExpect(jsonPath("$.email", is(userDetails.getEmail())));
     }
 
     @Test

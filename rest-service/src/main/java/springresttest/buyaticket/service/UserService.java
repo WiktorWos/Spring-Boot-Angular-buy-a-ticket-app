@@ -63,10 +63,13 @@ public class UserService {
         return userRepository.findByEmail(email);
     }
 
-    public String generateJwt(AuthenticationRequest authenticationRequest) {
-        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
-        final String jwt = jwtUtil.generateToken(userDetails);
-        return jwt;
+    public String generateJwt(UserDetails userDetails) {
+//        final UserDetails userDetails = userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
+        return jwtUtil.generateToken(userDetails);
+    }
+
+    public UserDetails getUserDetailsFromAuthRequest(AuthenticationRequest authenticationRequest) {
+        return userDetailsService.loadUserByUsername(authenticationRequest.getUsername());
     }
 
     public void authenticate(AuthenticationRequest authenticationRequest) {

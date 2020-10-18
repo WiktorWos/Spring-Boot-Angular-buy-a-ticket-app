@@ -3,6 +3,7 @@ package springresttest.buyaticket.security;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.User;
 
 import java.util.Collection;
@@ -50,5 +51,21 @@ public class MyUserPrincipal implements UserDetails {
     @Override
     public boolean isEnabled() {
         return true;
+    }
+
+    public String getEmail() {
+        return user.getEmail();
+    }
+
+    public List<Ticket> getTickets() {
+        return user.getTickets();
+    }
+
+    public String getFirstName() {
+        return user.getFirstName();
+    }
+
+    public String getLastName() {
+        return user.getLastName();
     }
 }

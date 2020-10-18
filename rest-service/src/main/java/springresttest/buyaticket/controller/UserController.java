@@ -2,6 +2,7 @@ package springresttest.buyaticket.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -10,6 +11,7 @@ import springresttest.buyaticket.exceptions.UserNotFoundException;
 import springresttest.buyaticket.model.AuthenticationRequest;
 import springresttest.buyaticket.model.AuthenticationResponse;
 import springresttest.buyaticket.model.User;
+import springresttest.buyaticket.security.MyUserPrincipal;
 import springresttest.buyaticket.service.UserService;
 import springresttest.buyaticket.validation.OnCreate;
 import springresttest.buyaticket.validation.OnUpdate;
@@ -34,8 +36,10 @@ public class UserController {
     @PostMapping("/authenticate")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws RuntimeException {
         userService.authenticate(authenticationRequest);
-        String jwt = userService.generateJwt(authenticationRequest);
-        return ResponseEntity.ok(new AuthenticationResponse(jwt));
+        MyUserPrincipal userDetails = (MyUserPrincipal) userService.getUserDetailsFromAuthRequest(authenticationRequest);
+        String jwt = userService.generateJwt(userDetails);
+        return ResponseEntity.ok(new AuthenticationResponse(jwt, userDetails.getFirstName(), userDetails.getLastName(),
+                                                             userDetails.getEmail(), userDetails.getTickets()));
     }
 
     @GetMapping("/users")

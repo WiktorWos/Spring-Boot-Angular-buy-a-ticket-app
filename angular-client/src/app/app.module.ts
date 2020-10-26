@@ -9,12 +9,16 @@ import {HttpClientModule} from '@angular/common/http';
 import { LoginComponent } from './login/login.component';
 
 import { authInterceptorProviders } from './_helpers/auth.interceptor';
+import { HamburgerMenuComponent } from './hamburger-menu/hamburger-menu.component';
+import { RegisterComponent } from './register/register.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
-    LoginComponent
+    LoginComponent,
+    HamburgerMenuComponent,
+    RegisterComponent
   ],
   imports: [
     BrowserModule,

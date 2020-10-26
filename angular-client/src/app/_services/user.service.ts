@@ -9,8 +9,7 @@ const API_URL = 'http://localhost:8080/api/users';
 })
 export class UserService {
   constructor(private http: HttpClient) { }
-
-  geUsers(): Observable<any> {
+  getUsers(): Observable<any> {
     return this.http.get(API_URL, { responseType: 'text' });
   }
 }

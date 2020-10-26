@@ -13,12 +13,12 @@
         novalidate
       >
         <div class="input-group">
-          <label for="username">Username or Email</label>
+          <label for="email">Email</label>
           <input
             type="text"
-            placeholder="Username or Email"
-            id="username"
-            name="username"
+            placeholder="Email"
+            id="email"
+            name="email"
             [(ngModel)]="form.username"
             required
             #username="ngModel"
@@ -37,14 +37,7 @@
             id="password"
             name="password"
             [(ngModel)]="form.password"
-            required
-            minlength="6"
-            #password="ngModel"
           />
-          <div *ngIf="password.errors.required">Password is required</div>
-          <div *ngIf="password.errors.minlength">
-            Password must be at least 6 characters
-          </div>
         </div>
         <div class="input-group"><button type="submit">Sign in</button></div>
       </form>

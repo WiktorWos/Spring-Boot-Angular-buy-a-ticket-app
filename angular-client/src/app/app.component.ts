@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import {Component, HostListener} from '@angular/core';
 
 @Component({
   selector: 'app-root',
@@ -7,4 +7,19 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'angular-client';
+  isChangeToRegistrationClicked = false;
+  isMobileSize = false;
+
+  constructor() {
+    this.getScreenSize();
+  }
+
+  onFormChangeClick() {
+    this.isChangeToRegistrationClicked = !this.isChangeToRegistrationClicked;
+  }
+  @HostListener('window:resize', ['$event'])
+  getScreenSize() {
+    const mobileSize = 530;
+    this.isMobileSize = window.innerWidth < mobileSize;
+  }
 }

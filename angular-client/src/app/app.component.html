@@ -1,4 +1,75 @@
 <body>
-    <app-login></app-login>
+  <div class="topNav">
+    <app-hamburger-menu></app-hamburger-menu>
+    <div class="formChanger" *ngIf="!isMobileSize">
+      <p
+        class="changeFormText"
+        *ngIf="isChangeToRegistrationClicked"
+      >
+          Already a user?
+      </p>
+      <p
+        class="changeFormText"
+        *ngIf="!isChangeToRegistrationClicked"
+      >
+        Don't have account?
+      </p>
+      <button
+        class="buttonChangeForm"
+        (click)="onFormChangeClick()"
+        *ngIf="isChangeToRegistrationClicked"
+      >
+        Sign in
+      </button>
+      <button
+        class="buttonChangeForm"
+        (click)="onFormChangeClick()"
+        *ngIf="!isChangeToRegistrationClicked"
+      >
+        Sign up
+      </button>
+    </div>
+  </div>
+
+
+  <section class="content">
+    <header id="appTitle">
+      <p>
+        <h1>Ticket app</h1>
+      <p>
+    </header>
+    <app-login *ngIf="!isChangeToRegistrationClicked"></app-login>
+    <app-register *ngIf="isChangeToRegistrationClicked"></app-register>
+
+    <div class="formChanger" *ngIf="isMobileSize">
+      <p
+        class="changeFormText"
+        *ngIf="isChangeToRegistrationClicked"
+      >
+        Already a user?
+      </p>
+      <p
+        class="changeFormText"
+        *ngIf="!isChangeToRegistrationClicked"
+      >
+        Don't have account?
+      </p>
+      <button
+        class="buttonChangeForm"
+        (click)="onFormChangeClick()"
+        *ngIf="isChangeToRegistrationClicked"
+      >
+        Sign in
+      </button>
+      <button
+        class="buttonChangeForm"
+        (click)="onFormChangeClick()"
+        *ngIf="!isChangeToRegistrationClicked"
+      >
+        Sign up
+      </button>
+    </div>
+
+  </section>
 
 </body>

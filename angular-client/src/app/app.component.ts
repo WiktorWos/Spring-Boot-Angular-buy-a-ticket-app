@@ -11,14 +11,14 @@ export class AppComponent {
   isMobileSize = false;
 
   constructor() {
-    this.getScreenSize();
+    this.checkIfMobileSize();
   }
 
   onFormChangeClick() {
     this.isChangeToRegistrationClicked = !this.isChangeToRegistrationClicked;
   }
   @HostListener('window:resize', ['$event'])
-  getScreenSize() {
+  checkIfMobileSize() {
     const mobileSize = 530;
     this.isMobileSize = window.innerWidth < mobileSize;
   }

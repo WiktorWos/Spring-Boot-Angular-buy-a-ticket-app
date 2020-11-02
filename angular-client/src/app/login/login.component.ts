@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {AuthService} from '../_services/auth.service';
 import {TokenStorageService} from '../_services/token-storage.service';
+import {NgForm} from '@angular/forms';
 
 @Component({
   selector: 'app-login',
@@ -21,22 +22,24 @@ export class LoginComponent implements OnInit {
     }
   }
 
-  onSubmit() {
-    this.authService.login(this.form).subscribe(
-      data => {
-        this.tokenStorageService.saveToken(data.jwt);
-        this.tokenStorageService.saveUser(data);
+  onSubmit(f: NgForm) {
+    if (f.valid) {
+      this.authService.login(this.form).subscribe(
+        data => {
+          this.tokenStorageService.saveToken(data.jwt);
+          this.tokenStorageService.saveUser(data);
 
-        this.isLoginFailed = false;
-        this.isLoggedIn = true;
+          this.isLoginFailed = false;
+          this.isLoggedIn = true;
 
-        this.reloadPage();
-      },
-      err => {
-        this.errorMessage = err.message[0];
-        this.isLoginFailed = true;
-      }
-    );
+          this.reloadPage();
+        },
+        err => {
+          this.errorMessage = err.message[0];
+          this.isLoginFailed = true;
+        }
+      );
+    }
   }
 
   reloadPage() {

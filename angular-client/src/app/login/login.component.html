@@ -8,9 +8,8 @@
         class="login-form"
         *ngIf="!isLoggedIn"
         name="form"
-        (ngSubmit)="onSubmit()"
+        (ngSubmit)="onSubmit(f)"
         #f="ngForm"
-        novalidate
       >
         <div class="input-group">
           <label for="email">Email</label>
@@ -23,10 +22,10 @@
             required
             #username="ngModel"
           />
-          <div
-            *ngIf="f.submitted && username.invalid"
-          >
-            Username is required!
+          <div *ngIf="username.invalid && (username.dirty || username.touched)">
+            <div class="error" *ngIf="username.errors.required">
+              Email is required!
+            </div>
           </div>
         </div>
         <div class="input-group">
@@ -37,7 +36,14 @@
             id="password"
             name="password"
             [(ngModel)]="form.password"
+            #password="ngModel"
+            required
           />
+          <div *ngIf="password.invalid && (password.dirty || password.touched)">
+            <div class="error" *ngIf="password.errors.required">
+              Password is required!
+            </div>
+          </div>
         </div>
         <div class="input-group"><button type="submit">Sign in</button></div>
       </form>

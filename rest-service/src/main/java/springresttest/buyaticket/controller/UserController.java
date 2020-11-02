@@ -2,11 +2,8 @@ package springresttest.buyaticket.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import springresttest.buyaticket.exceptions.UsedEmailException;
 import springresttest.buyaticket.exceptions.UserNotFoundException;
 import springresttest.buyaticket.model.AuthenticationRequest;
 import springresttest.buyaticket.model.AuthenticationResponse;
@@ -17,7 +14,7 @@ import springresttest.buyaticket.validation.OnCreate;
 import springresttest.buyaticket.validation.OnUpdate;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
+import java.security.Principal;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,7 +30,7 @@ public class UserController {
         this.userService = userService;
     }
 
-    @PostMapping("/authenticate")
+    @PostMapping("/authenticate/signIn")
     public ResponseEntity<?> createAuthenticationToken(@RequestBody AuthenticationRequest authenticationRequest) throws RuntimeException {
         userService.authenticate(authenticationRequest);
         MyUserPrincipal userDetails = (MyUserPrincipal) userService.getUserDetailsFromAuthRequest(authenticationRequest);
@@ -53,7 +50,7 @@ public class UserController {
     }
 
     @Validated(OnCreate.class)
-    @PostMapping("/users")
+    @PostMapping("/authenticate/signUp")
     public User addUser(@Valid @RequestBody User user) {
         userService.save(user);
         return user;

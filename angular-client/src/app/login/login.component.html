@@ -20,11 +20,15 @@
             name="email"
             [(ngModel)]="form.username"
             required
+            email
             #username="ngModel"
           />
           <div *ngIf="username.invalid && (username.dirty || username.touched)">
             <div class="error" *ngIf="username.errors.required">
               Email is required!
+            </div>
+            <div class="error" *ngIf="username.errors.email">
+              The email should be in valid format!
             </div>
           </div>
         </div>

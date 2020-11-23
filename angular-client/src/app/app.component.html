@@ -1,33 +1,29 @@
 <body>
   <div class="topNav">
     <app-hamburger-menu></app-hamburger-menu>
-    <div class="formChanger" *ngIf="!isMobileSize">
-      <p
-        class="changeFormText"
-        *ngIf="isChangeToRegistrationClicked"
-      >
-          Already a user?
-      </p>
-      <p
-        class="changeFormText"
-        *ngIf="!isChangeToRegistrationClicked"
-      >
-        Don't have account?
-      </p>
-      <button
-        class="buttonChangeForm"
-        (click)="onFormChangeClick()"
-        *ngIf="isChangeToRegistrationClicked"
-      >
-        Sign in
-      </button>
-      <button
-        class="buttonChangeForm"
-        (click)="onFormChangeClick()"
-        *ngIf="!isChangeToRegistrationClicked"
-      >
-        Sign up
-      </button>
+    <div *ngIf="!isMobileSize">
+      <div *ngIf="!isLoginPage" class="formChanger">
+        <p class="changeFormText">
+            Already a user?
+        </p>
+        <button
+          class="buttonChangeForm"
+          (click)="onFormChangeClick()"
+        >
+          Sign in
+        </button>
+      </div>
+      <div *ngIf="isLoginPage" class="formChanger">
+        <p class="changeFormText">
+          Don't have account?
+        </p>
+        <button
+          class="buttonChangeForm"
+          (click)="onFormChangeClick()"
+        >
+          Sign up
+        </button>
+      </div>
     </div>
   </div>
 
@@ -38,36 +34,31 @@
         <h1>Ticket app</h1>
       <p>
     </header>
-    <app-login *ngIf="!isChangeToRegistrationClicked"></app-login>
-    <app-register *ngIf="isChangeToRegistrationClicked"></app-register>
+    <router-outlet (activate)="onRouterOutletActivate($event)"></router-outlet>
 
-    <div class="formChanger" *ngIf="isMobileSize">
-      <p
-        class="changeFormText"
-        *ngIf="isChangeToRegistrationClicked"
-      >
-        Already a user?
-      </p>
-      <p
-        class="changeFormText"
-        *ngIf="!isChangeToRegistrationClicked"
-      >
-        Don't have account?
-      </p>
-      <button
-        class="buttonChangeForm"
-        (click)="onFormChangeClick()"
-        *ngIf="isChangeToRegistrationClicked"
-      >
-        Sign in
-      </button>
-      <button
-        class="buttonChangeForm"
-        (click)="onFormChangeClick()"
-        *ngIf="!isChangeToRegistrationClicked"
-      >
-        Sign up
-      </button>
+    <div *ngIf="isMobileSize">
+      <div *ngIf="isChangeToRegistrationClicked" class="formChanger">
+        <p class="changeFormText">
+          Already a user?
+        </p>
+        <button
+          class="buttonChangeForm"
+          (click)="onFormChangeClick()"
+        >
+          Sign in
+        </button>
+      </div>
+      <div *ngIf="!isChangeToRegistrationClicked" class="formChanger">
+        <p class="changeFormText">
+          Don't have account?
+        </p>
+        <button
+          class="buttonChangeForm"
+          (click)="onFormChangeClick()"
+        >
+          Sign up
+        </button>
+      </div>
     </div>
 
   </section>

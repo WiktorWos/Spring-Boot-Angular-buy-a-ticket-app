@@ -1,4 +1,5 @@
 import {Component, HostListener} from '@angular/core';
+import {Router} from '@angular/router';
 
 @Component({
   selector: 'app-root',
@@ -9,14 +10,26 @@ export class AppComponent {
   title = 'angular-client';
   isChangeToRegistrationClicked = false;
   isMobileSize = false;
+  isLoginPage: boolean;
 
-  constructor() {
+  constructor(private router: Router) {
     this.checkIfMobileSize();
   }
 
   onFormChangeClick() {
-    this.isChangeToRegistrationClicked = !this.isChangeToRegistrationClicked;
+    if (this.isLoginPage) {
+      this.router.navigate(['/register']);
+    } else {
+      this.router.navigate(['/login']);
+    }
+    this.isLoginPage = !this.isLoginPage;
   }
+
+  onRouterOutletActivate(event: any) {
+    const loginUrl = '/login';
+    this.isLoginPage = window.location.pathname === loginUrl;
+  }
+
   @HostListener('window:resize', ['$event'])
   checkIfMobileSize() {
     const mobileSize = 530;

@@ -1,18 +1,18 @@
 <div class="wrapper">
-  <div class="formContent">
+  <div
+    class="formContent"
+    *ngIf="!isSuccessful"
+  >
     <header>
       <h1> Sign up </h1>
     </header>
     <section>
       <form
         class="login-form"
-        (ngSubmit)="onSubmit()">
-<!--        class="login-form"-->
-<!--        *ngIf="!isLoggedIn"-->
-<!--        name="form"-->
-<!--        (ngSubmit)="onSubmit()"-->
-<!--        #f="ngForm"-->
-<!--        novalidate-->
+        (ngSubmit)="onSubmit()"
+        name="form"
+        #f="ngForm"
+      >
 
         <div class="input-group">
           <label for="firstName">First name</label>
@@ -21,40 +21,66 @@
             placeholder="First name"
             id="firstName"
             name="firstName"
-            [(ngModel)]="form.firstName"/>
+            [(ngModel)]="form.firstName"
+            #firstName = "ngModel"
+            required
+          />
+          <div *ngIf="firstName.invalid && (firstName.dirty || firstName.touched)">
+            <div class="error" *ngIf="firstName.errors.required">
+              First name is required!
+            </div>
+          </div>
           <label for="lastName">Last name</label>
           <input
             type="text"
             placeholder="Last name"
             id="lastName"
             name="lastName"
-            [(ngModel)]="form.lastName"/>
+            [(ngModel)]="form.lastName"
+            #lastName = "ngModel"
+            required
+          />
+          <div *ngIf="lastName.invalid && (lastName.dirty || lastName.touched)">
+            <div class="error" *ngIf="lastName.errors.required">
+              Last name is required!
+            </div>
+          </div>
           <label for="email">Email</label>
           <input
             type="text"
             placeholder="Email"
             id="email"
             name="email"
-            [(ngModel)]="form.email"/>
-<!--            [(ngModel)]="form.username"-->
-<!--            required-->
-<!--            #username="ngModel"-->
+            [(ngModel)]="form.email"
+            #email = "ngModel"
+            required
+            email
+          />
+          <div *ngIf="email.invalid && (email.dirty || email.touched)">
+            <div class="error" *ngIf="email.errors.required">
+              Email is required!
+            </div>
+            <div class="error" *ngIf="email.errors.email && !email.pending">
+              The email should be in valid format!
+            </div>
+          </div>
 
-<!--          <div-->
-<!--            *ngIf="f.submitted && username.invalid"-->
-<!--          >-->
-<!--            Username is required!-->
-<!--          </div>-->
-        </div>
-        <div class="input-group">
           <label for="password">Password</label>
           <input
             type="password"
             placeholder="Password"
             id="password"
             name="password"
-            [(ngModel)]="form.password"/>
-<!--            [(ngModel)]="form.password"-->
+            [(ngModel)]="form.password"
+            #password = "ngModel"
+            required
+          />
+
+          <div *ngIf="password.invalid && (password.dirty || password.touched)">
+            <div class="error" *ngIf="password.errors.required">
+              Password is required!
+            </div>
+          </div>
 
         </div>
 
@@ -66,5 +92,14 @@
 <!--    <div *ngIf="isLoggedIn">-->
 <!--      Logged in.-->
 <!--    </div>-->
+  </div>
+  <div class="formContent"
+       id="successMessage"
+       *ngIf="isSuccessful"
+  >
+    <header>
+      <h1> Signed up successfully! </h1>
+    </header>
+    <button [routerLink]="'/login'"> Sing in</button>
   </div>
 </div>

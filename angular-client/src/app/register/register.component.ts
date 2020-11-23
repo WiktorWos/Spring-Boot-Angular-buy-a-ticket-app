@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import {UserService} from '../_services/user.service';
 import {AuthService} from '../_services/auth.service';
 
 @Component({
@@ -22,7 +21,6 @@ export class RegisterComponent implements OnInit {
   onSubmit() {
     this.authService.register(this.form).subscribe(
       data => {
-        console.log(data);
         this.isSuccessful = true;
         this.isSignUpFailed = false;
       },
@@ -32,5 +30,4 @@ export class RegisterComponent implements OnInit {
       }
     );
   }
-
 }

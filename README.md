@@ -1,8 +1,13 @@
-# buy-a-ticket-rest
-Simple Spring Boot REST service. It uses local MongoDb database, connected with app by Spring MongoRepository.
+# Spring Boot + Angular buy a ticket app
+Simple Spring Boot REST service. It uses local MongoDb database, connected by Spring MongoRepository.
 App sends confirmation email when you add a ticket. Controllers are tested through @WebMvcTest.
+REST service enables jwt authentication.
 
-## Endpoints
+## Endpoints (avaliable at the moment, some features will be added in the future)
+```
+/api/authenticate
+```
+post - authenticates user, generates jwt if authenticated
 ```
 /api/users
 ```

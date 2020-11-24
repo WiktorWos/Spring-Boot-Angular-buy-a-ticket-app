@@ -24,6 +24,7 @@ public class User {
     @UniqueEmailOnUpdate(groups = OnUpdate.class)
     private String email;
 
+    @NotEmpty(message = "Please provide a password")
     private String password;
 
     private List<Ticket> tickets;

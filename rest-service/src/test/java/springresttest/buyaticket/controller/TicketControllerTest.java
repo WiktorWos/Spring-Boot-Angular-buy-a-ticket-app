@@ -5,17 +5,20 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import springresttest.buyaticket.email.EmailSender;
-import springresttest.buyaticket.jackson.EntityToJson;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
+import springresttest.buyaticket.security.UserSecurity;
 import springresttest.buyaticket.service.MyUserDetailsService;
 import springresttest.buyaticket.service.TicketService;
+import springresttest.buyaticket.service.UserService;
 import springresttest.buyaticket.util.JwtUtil;
 
 import java.time.LocalDateTime;
@@ -24,7 +27,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -33,6 +37,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(TicketController.class)
 @WithMockUser
 class TicketControllerTest {
+
+    @TestConfiguration
+    public static class TestConfig {
+        @Bean
+        UserSecurity userSecurity() {
+            return new UserSecurity(userService);
+        }
+
+        @MockBean
+        UserService userService;
+    }
+
     @Autowired
     MockMvc mockMvc;
 
@@ -47,6 +63,9 @@ class TicketControllerTest {
 
     @MockBean
     JwtUtil jwtUtil;
+
+    @MockBean
+    UserSecurity userSecurity;
 
     private DateTimeFormatter dateTimeFormatter;
 
@@ -96,6 +115,7 @@ class TicketControllerTest {
         String validityString = ticketValidity.format(dateTimeFormatter);
 
         given(ticketService.getUsersTickets(ArgumentMatchers.any())).willReturn(tickets);
+        given(userSecurity.isUsersIdSameAsURL(ArgumentMatchers.any(), ArgumentMatchers.anyString())).willReturn(true);
 
         mockMvc.perform(get("/api/tickets/{id}",1)
                 .contentType(MediaType.APPLICATION_JSON))
@@ -122,6 +142,7 @@ class TicketControllerTest {
         user.setUserId("1");
         Ticket newTicket = generateTicket();
         given(ticketService.addTicket(ArgumentMatchers.any(), ArgumentMatchers.any())).willReturn(newTicket);
+        given(userSecurity.isUsersIdSameAsURL(ArgumentMatchers.any(), ArgumentMatchers.anyString())).willReturn(true);
 
         String jsonTicketString = "{\"type\":\"NORMAL_20\"}";
         LocalDateTime nowPlus20min = LocalDateTime.now().plusMinutes(20);

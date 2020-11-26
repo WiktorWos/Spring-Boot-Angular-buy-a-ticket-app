@@ -21,29 +21,29 @@ public class ConnectionController {
         this.connectionService = connectionService;
     }
 
-    @GetMapping("/connection")
+    @GetMapping("/connections")
     public List<Connection> getAllConnections() {
         return connectionService.getConnections();
     }
 
-    @GetMapping("/connection/{id}")
+    @GetMapping("/connections/{id}")
     public Connection getOneConnection(@PathVariable String id) {
         return connectionService.findById(id).orElseThrow(() -> new ConnectionNotFoundException("Connection not found"));
     }
 
-    @PostMapping("/connection")
+    @PostMapping("/connections")
     public Connection addConnection(@Valid @RequestBody Connection connection) {
         connectionService.saveConnection(connection);
         return connection;
     }
 
-    @PutMapping("/connection/{id}")
+    @PutMapping("/connections/{id}")
     public Connection updateConnection(@RequestBody @Valid Connection updatedConnection, @PathVariable String id) {
         connectionService.updateConnection(updatedConnection, id);
         return updatedConnection;
     }
 
-    @DeleteMapping("/connection/{id}")
+    @DeleteMapping("/connections/{id}")
     public Connection deleteConnection(@PathVariable String id) {
         Optional<Connection> optionalConnection = connectionService.findById(id);
         optionalConnection.ifPresent(user -> connectionService.deleteConnection(user));

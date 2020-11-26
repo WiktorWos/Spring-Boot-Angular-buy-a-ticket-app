@@ -7,6 +7,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
+import java.util.Objects;
 
 @Document(collection = "connection")
 public class Connection {
@@ -109,5 +110,21 @@ public class Connection {
 
     public void setSchedule(Schedule schedule) {
         this.schedule = schedule;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Connection)) return false;
+        Connection that = (Connection) o;
+        return cityFrom.equals(that.cityFrom) &&
+                cityTo.equals(that.cityTo) &&
+                pricePerKm.equals(that.pricePerKm) &&
+                busStops.equals(that.busStops);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cityFrom, cityTo, pricePerKm, busStops);
     }
 }

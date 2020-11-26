@@ -9,8 +9,6 @@ import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 import springresttest.buyaticket.exceptions.UsedEmailException;
@@ -53,27 +51,24 @@ class UserControllerTest {
             return new UserSecurity(userService);
         }
 
-        @MockBean
+        @Autowired
         UserService userService;
     }
 
     @Autowired
-    MockMvc mockMvc;
-
-    @Autowired
-    UserService userService;
+    private MockMvc mockMvc;
 
     @MockBean
-    AuthenticationManager authenticationManager;
+    private UserService userService;
 
     @MockBean
-    MyUserDetailsService userDetailsService;
+    private MyUserDetailsService userDetailsService;
 
     @MockBean
-    JwtUtil jwtUtil;
+    private JwtUtil jwtUtil;
 
     @MockBean
-    UserSecurity userSecurity;
+    private UserSecurity userSecurity;
 
     private EntityToJson entityToJson;
 
@@ -322,8 +317,8 @@ class UserControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(jsonAuthenticationString)
                 .contentType(MediaType.APPLICATION_JSON))
-                .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.status", is(403)))
+                .andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status", is(401)))
                 .andExpect(jsonPath("$.message[0]", is("Wrong email or password")));
     }
 }

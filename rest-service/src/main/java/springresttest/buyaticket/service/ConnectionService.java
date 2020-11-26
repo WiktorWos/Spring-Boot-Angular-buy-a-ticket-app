@@ -3,6 +3,7 @@ package springresttest.buyaticket.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import springresttest.buyaticket.exceptions.ConnectionNotFoundException;
+import springresttest.buyaticket.exceptions.DuplicateConnectionException;
 import springresttest.buyaticket.model.Connection;
 import springresttest.buyaticket.repository.ConnectionRepository;
 
@@ -23,6 +24,8 @@ public class ConnectionService {
     }
 
     public void saveConnection(Connection connection) {
+        List<Connection> connections = getConnections();
+        if(connections.contains(connection)) throw new DuplicateConnectionException("Duplicate connection");
         connectionRepository.save(connection);
     }
 

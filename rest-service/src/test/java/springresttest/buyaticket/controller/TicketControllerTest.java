@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
-import springresttest.buyaticket.email.EmailSender;
 import springresttest.buyaticket.model.Ticket;
 import springresttest.buyaticket.model.TicketType;
 import springresttest.buyaticket.model.User;
@@ -54,9 +53,6 @@ class TicketControllerTest {
 
     @MockBean
     TicketService ticketService;
-
-    @MockBean
-    EmailSender emailSender;
 
     @MockBean
     MyUserDetailsService userDetailsService;

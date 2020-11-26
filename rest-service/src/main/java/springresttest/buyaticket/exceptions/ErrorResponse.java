@@ -2,12 +2,12 @@ package springresttest.buyaticket.exceptions;
 
 import java.util.List;
 
-public class UserErrorResponse {
+public class ErrorResponse {
     private int status;
     private List<String> messages;
     private long timestamp;
 
-    public UserErrorResponse(int status, List<String> messages, long timestamp) {
+    public ErrorResponse(int status, List<String> messages, long timestamp) {
         this.status = status;
         this.messages = messages;
         this.timestamp = timestamp;

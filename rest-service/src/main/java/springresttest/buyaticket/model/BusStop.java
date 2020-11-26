@@ -2,6 +2,7 @@ package springresttest.buyaticket.model;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 public class BusStop {
     @NotBlank(message = "Please provide a location")
@@ -44,5 +45,18 @@ public class BusStop {
 
     public void setTimeFromFirstStop(Integer timeFromFirstStop) {
         this.timeFromFirstStop = timeFromFirstStop;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof BusStop)) return false;
+        BusStop busStop = (BusStop) o;
+        return location.equals(busStop.location);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(location);
     }
 }
